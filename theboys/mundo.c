@@ -2,7 +2,7 @@
 #include "lista.h"
 #include "fprio.h"
 
-struct heroi{
+struct herois{
 
     unsigned int id;
     struct cjto_t *habili;
