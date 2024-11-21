@@ -12,9 +12,9 @@
 // seus #defines vão aqui
 
 #define T_INICIO 0
-#define T_FIM_DO_MUNDO 10
-#define N_TAMANHO_MUNDO 100
-#define N_HABILIDADES 1
+#define T_FIM_DO_MUNDO 500
+#define N_TAMANHO_MUNDO 20000
+#define N_HABILIDADES 10
 
 // minimize o uso de variáveis globais
 
@@ -31,7 +31,8 @@ struct herois * iniciaHerois(unsigned int nherois){
     h[i].vel = (rand()%4051 + 50);
     h[i].xp = 0;
     h[i].idBase = 0;
-    h[i].habili = cjto_aleat(N_HABILIDADES, 3);
+    unsigned int tam = rand()%3 + 1;
+    h[i].habili = cjto_aleat(tam, N_HABILIDADES);
   
   }
 
@@ -68,7 +69,8 @@ struct missao * iniciaMissao(unsigned int nmissao){
     m[i].id = i;
     m[i].local.x = rand()%N_TAMANHO_MUNDO;
     m[i].local.y = rand()%N_TAMANHO_MUNDO;
-    m[i].habili = cjto_aleat(N_HABILIDADES, 10);
+    unsigned int tam = rand()%5 + 6;
+    m[i].habili = cjto_aleat(tam, N_HABILIDADES);
     m[i].perigo = rand()%101;
 
   }
@@ -123,12 +125,44 @@ void printHerois(struct mundo *mundo){
   printf("\n");
   for(unsigned int i = 0; i < mundo->Nherois; ++i){
 
-    printf("%u     ", i);
+    printf("%u     ", mundo->herois[i].id);
     printf("%u         ", mundo->herois[i].paci);
     printf("%u          ",mundo->herois[i].vel);
     printf("%u            ", mundo->herois[i].xp);
     printf("%u      ", mundo->herois[i].idBase);
     cjto_imprime(mundo->herois[i].habili);
+    printf("\n");
+
+  }
+}
+
+void printBase(struct mundo *mundo){
+
+  printf("base lotacao localX localY presentes espera\n");
+
+  for (unsigned int i = 0; i < mundo->Nbase; ++i){
+
+    printf("%u    ", mundo->base[i].id);
+    printf("%u       ", mundo->base[i].lotacao);
+    printf("%u      ", mundo->base[i].local.x);
+    printf("%u      ", mundo->base[i].local.y);
+    cjto_imprime(mundo->base->presentes);
+    lista_imprime(mundo->base->espera);
+    printf("\n");
+  }
+}
+
+void printMissao(struct mundo *mundo){
+
+  printf("missao perigo localX localY habilidades\n");
+  
+  for (unsigned int i = 0; i < mundo->Nmissao; ++i){
+
+    printf("%u      ", mundo->missao[i].id);
+    printf("%u      ", mundo->missao[i].perigo);
+    printf("%u      ", mundo->missao[i].local.x);
+    printf("%u      ", mundo->missao[i].local.y);
+    cjto_imprime(mundo->missao[i].habili);
     printf("\n");
 
   }
@@ -147,6 +181,10 @@ int main (){
   // executar o laço de simulação
 
   printHerois(mundo);
+  printf("\n\n\n\n");
+  printBase(mundo);
+  printf("\n\n\n\n");
+  printMissao(mundo);
 
   // destruir o mundo
 
