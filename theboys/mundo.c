@@ -50,7 +50,7 @@ struct mundo{
     unsigned int Nhabili;
     struct cordenada tamMundo;
     unsigned int relogio;
-    struct fprio_t lista
+    struct fprio_t *lista;
 
 };
 
