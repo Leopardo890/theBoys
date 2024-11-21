@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 
-#include "mundo.c" 
+#include "eventos.c" 
 
 // seus #defines vão aqui
 
@@ -94,6 +94,7 @@ struct mundo * iniciarMundo(){
   mun->tamMundo.x = N_TAMANHO_MUNDO;
   mun->tamMundo.y = N_TAMANHO_MUNDO;
   mun->relogio = 0;
+  mun->lista = fprio_cria();
 
   return mun;
 }
@@ -111,6 +112,8 @@ struct mundo * destruirMundo(struct mundo *mundo){
   for(unsigned int i = 0; i < mundo->Nmissao; ++i)
     mundo->missao[i].habili = cjto_destroi(mundo->missao[i].habili);
   
+  mundo->lista = fprio_destroi(mundo->lista);
+
   free(mundo->herois);
   free(mundo->base);
   free(mundo->missao);
@@ -167,6 +170,7 @@ void printMissao(struct mundo *mundo){
 
   }
 }
+
 
 // programa principal
 int main (){

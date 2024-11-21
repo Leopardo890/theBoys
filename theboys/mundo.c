@@ -50,5 +50,17 @@ struct mundo{
     unsigned int Nhabili;
     struct cordenada tamMundo;
     unsigned int relogio;
+    struct fprio_t lista
 
+};
+
+struct evento0{
+
+    unsigned int idHeroi;
+    unsigned int idBase;
+};
+
+struct evento1{
+
+    unsigned int idBase;
 };
