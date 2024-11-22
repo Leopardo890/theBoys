@@ -1,47 +1,45 @@
 #include "mundo.c"
 
-void chega(struct mundo *mundo, unsigned int t, unsigned int h, 
-            unsigned int b){
+void chega(struct mundo *mundo, struct evento0 *item){
 
-    mundo->herois[h].idBase = b;
+    mundo->herois[item->h].idBase = item->b;
 
     int esp;
     int presentes;
-    presentes = cjto_card(mundo->base[b].presentes);
+    presentes = cjto_card(mundo->base[item->b].presentes);
     int fila;
-    fila = lista_tamanho(mundo->base[b].espera);
+    fila = lista_tamanho(mundo->base[item->b].espera);
   
-    if ((unsigned int)presentes < mundo->base[b].lotacao && fila == 0)
+    if ((unsigned int)presentes < mundo->base[item->b].lotacao && fila == 0)
         esp = 1;
-    else if ((mundo->herois[h].paci) > (unsigned int)(10 * fila))
+    else if ((mundo->herois[item->h].paci) > (unsigned int)(10 * fila))
         esp = 1;
 
     struct evento0 *e;
     if (!(e = malloc(sizeof(struct evento0))))
         return;
 
-    e->idHeroi = h;
-    e->idBase = b;  
+    e->h = item->h;
+    e->b = item->b;  
 
     if (esp)
-        fprio_insere(mundo->lista, e, 0, t);
+        fprio_insere(mundo->lista, e, 1, mundo->relogio++);
     else
-        fprio_insere(mundo->lista, e, 1, t);
+        fprio_insere(mundo->lista, e, 2, mundo->relogio++);
 }
 
-void espera(struct mundo *mundo, unsigned int h, unsigned int t,
-            unsigned int b){
+void espera(struct mundo *mundo, struct evento0 *item){
 
-    lista_insere(mundo->base[b].espera, h, -1);
+    lista_insere(mundo->base[item->b].espera, item->h, -1);
 
-    struct evento1 *e;
-    if (!(e = malloc(sizeof(struct evento1))))
+    struct evento2 *e;
+    if (!(e = malloc(sizeof(struct evento2))))
         return;
-    e->idBase = b;
-    fprio_insere(mundo->lista, e, 2, t);
+    e->b = item->b;
+    fprio_insere(mundo->lista, e, 3, mundo->relogio++);
 }
 
-void desiste(struct mundo *mundo, unsigned int h, unsigned int t){
+void desiste(struct mundo *mundo, struct evento1 *item){
 
     unsigned int d;
     d = rand()%mundo->Nbase;
@@ -50,8 +48,8 @@ void desiste(struct mundo *mundo, unsigned int h, unsigned int t){
     if(!(e = malloc(sizeof(struct evento0))))
         return;
     
-    e->idHeroi = h;
-    e->idBase = d;
+    e->h = item->h;
+    e->b = d;
 
-    fprio_insere(mundo->lista, e, 3, t);
+    fprio_insere(mundo->lista, e, 4, mundo->relogio++);
 }

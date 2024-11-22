@@ -12,7 +12,7 @@
 // seus #defines vão aqui
 
 #define T_INICIO 0
-#define T_FIM_DO_MUNDO 500
+#define T_FIM_DO_MUNDO 50
 #define N_TAMANHO_MUNDO 20000
 #define N_HABILIDADES 10
 
@@ -78,6 +78,23 @@ struct missao * iniciaMissao(unsigned int nmissao){
   return m;
 }
 
+struct fprio_t * fprio_inicia(struct mundo *mundo){
+
+  for (unsigned int i = 0; i < mundo->Nherois; ++i){  
+    
+    struct evento0 *e;
+    if (!(e = malloc(sizeof(struct evento0))))
+      return NULL;
+
+    e->h = i;
+    e->b = rand()%mundo->Nbase;
+    fprio_insere(mundo->lista, e, 0, i);
+  
+  }
+
+  return mundo->lista;
+}
+
 struct mundo * iniciarMundo(){
 
   struct mundo *mun;
@@ -95,6 +112,7 @@ struct mundo * iniciarMundo(){
   mun->tamMundo.y = N_TAMANHO_MUNDO;
   mun->relogio = 0;
   mun->lista = fprio_cria();
+  mun->lista = fprio_inicia(mun);
 
   return mun;
 }
@@ -183,6 +201,48 @@ int main (){
   mundo = iniciarMundo();
 
   // executar o laço de simulação
+
+  fprio_imprime(mundo->lista);
+
+  printf("\n\n\n\n");
+
+  while (mundo->relogio <= T_FIM_DO_MUNDO){
+
+    int tipo;
+    int tempo;
+    void *item;
+    item = fprio_retira(mundo->lista, &tipo, &tempo);
+
+    printf("\n%d\n", tipo);
+
+    switch(tipo){
+      case 0:{
+        chega(mundo, item);
+        break;
+      }
+      case 1:{
+        espera(mundo, item);
+        break;
+      }
+      case 2:{
+        desiste(mundo, item);
+        break;
+      }
+      case 3:{
+        break;
+      }
+      case 4:{
+        break;
+      }
+    }
+
+    fprio_imprime(mundo->lista);
+
+    printf("\n\n\n");
+
+    if ((unsigned int)tempo > mundo->relogio)
+      mundo->relogio++;
+  }
 
   printHerois(mundo);
   printf("\n\n\n\n");

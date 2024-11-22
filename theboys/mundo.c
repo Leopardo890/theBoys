@@ -56,11 +56,16 @@ struct mundo{
 
 struct evento0{
 
-    unsigned int idHeroi;
-    unsigned int idBase;
+    unsigned int h;
+    unsigned int b;
 };
 
 struct evento1{
 
-    unsigned int idBase;
+    unsigned int h;
+};
+
+struct evento2{
+
+    unsigned int b;
 };
