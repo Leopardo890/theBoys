@@ -100,7 +100,7 @@ int fprio_insere (struct fprio_t *f, void *item, int tipo, int prio){
 		aux = aux->prox;
 	}
 
-	if (aux->prio < novo->prio || aux->prox == NULL){
+	if (aux->prox == NULL){
 		aux->prox = novo;
 		novo->prox = NULL;
 	}

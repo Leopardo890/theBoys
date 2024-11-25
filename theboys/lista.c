@@ -61,7 +61,8 @@ int lista_insere (struct lista_t *lst, int item, int pos){
 		lst->ult = novo;
 		novo->ant = NULL;
 		novo->prox = NULL;
-		return lst->tamanho++;
+		lst->tamanho++;
+		return lst->tamanho;
 	}
 
 	/*Primeiro da lista*/
@@ -70,7 +71,8 @@ int lista_insere (struct lista_t *lst, int item, int pos){
 		novo->ant = NULL;
 		lst->prim->ant = novo;
 		lst->prim = novo;
-		return lst->tamanho++;
+		lst->tamanho++;
+		return lst->tamanho;
 	}
 
 	/*Fim da lista*/
@@ -79,7 +81,8 @@ int lista_insere (struct lista_t *lst, int item, int pos){
 		novo->ant = lst->ult;
 		lst->ult = novo;
 		novo->prox = NULL;
-		return lst->tamanho++;
+		lst->tamanho++;
+		return lst->tamanho;
 	}
 
 	/*Meio da lista*/
@@ -95,7 +98,8 @@ int lista_insere (struct lista_t *lst, int item, int pos){
 	novo->ant = aux->ant;
 	aux->ant->prox = novo;
 	aux->ant = novo;	
-	return lst->tamanho++;
+	lst->tamanho++;
+	return lst->tamanho;
 
 }
 
@@ -115,7 +119,8 @@ int lista_retira (struct lista_t *lst, int *item, int pos){
 		lst->prim = NULL;
 		*item = aux->valor;
 		free(aux);
-		return lst->tamanho--;
+		lst->tamanho--;
+		return lst->tamanho;
 	}
 
 	/*Primeiro da lista*/
@@ -125,7 +130,8 @@ int lista_retira (struct lista_t *lst, int *item, int pos){
 		aux->prox->ant = NULL;
 		*item = aux->valor;
 		free(aux);
-		return lst->tamanho--;
+		lst->tamanho--;
+		return lst->tamanho;
 	}
 
 	/*Ultimo da lista*/
@@ -135,7 +141,8 @@ int lista_retira (struct lista_t *lst, int *item, int pos){
 		lst->ult->prox = NULL;
 		*item = aux->valor;
 		free(aux);
-		return lst->tamanho--;
+		lst->tamanho--;
+		return lst->tamanho;
 	}
 
 	/*Meio da lista*/
@@ -150,7 +157,8 @@ int lista_retira (struct lista_t *lst, int *item, int pos){
 	aux->prox->ant = aux->ant;
 	*item = aux->valor;
 	free(aux);
-	return lst->tamanho--;
+	lst->tamanho--;
+	return lst->tamanho;
 
 }
 

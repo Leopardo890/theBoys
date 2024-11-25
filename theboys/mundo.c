@@ -4,26 +4,26 @@
 
 struct herois{
 
-    unsigned int id;
+    int id;
     struct cjto_t *habili;
-    unsigned int paci;
-    unsigned int vel;
-    unsigned int xp;
-    unsigned int idBase;
+    int paci;
+    int vel;
+    int xp;
+    int idBase;
 
 };
 
 struct cordenada{
 
-    unsigned int x;
-    unsigned int y;
+    int x;
+    int y;
 
 };
 
 struct base{
 
-    unsigned int id;
-    unsigned int lotacao;
+    int id;
+    int lotacao;
     struct cjto_t *presentes;
     struct lista_t *espera;
     struct cordenada local;
@@ -32,40 +32,40 @@ struct base{
 
 struct missao{
 
-    unsigned int id;
+    int id;
     struct cjto_t *habili;
-    unsigned int perigo;
+    int perigo;
     struct cordenada local;
 
 };
 
 struct mundo{
 
-    unsigned int Nherois;
+    int Nherois;
     struct herois *herois;
-    unsigned int Nbase;
+    int Nbase;
     struct base *base;
-    unsigned int Nmissao;
+    int Nmissao;
     struct missao *missao;
-    unsigned int Nhabili;
+    int Nhabili;
     struct cordenada tamMundo;
-    unsigned int relogio;
+    int relogio;
     struct fprio_t *lista;
 
 };
 
 struct evento0{
 
-    unsigned int h;
-    unsigned int b;
+    int h;
+    int b;
 };
 
 struct evento1{
 
-    unsigned int h;
+    int h;
 };
 
 struct evento2{
 
-    unsigned int b;
+    int b;
 };
