@@ -12,9 +12,9 @@
 // seus #defines vão aqui
 
 #define T_INICIO 0
-#define T_FIM_DO_MUNDO 50
-#define N_TAMANHO_MUNDO 200
-#define N_HABILIDADES 5
+#define T_FIM_DO_MUNDO 5
+#define N_TAMANHO_MUNDO 20
+#define N_HABILIDADES 3
 
 // minimize o uso de variáveis globais
 
@@ -39,7 +39,7 @@ struct herois * iniciaHerois(int nherois){
     return h;
 }
 
-struct base * iniciaBase(int nbase){
+struct base * iniciaBase(int nbase, int nherois){
 
     struct base *b;
     if (!(b = malloc(sizeof(struct base) * nbase)))
@@ -51,7 +51,7 @@ struct base * iniciaBase(int nbase){
         b[i].local.x = rand()%N_TAMANHO_MUNDO;
         b[i].local.y = rand()%N_TAMANHO_MUNDO;
         b[i].lotacao = (rand()%8 + 3);
-        b[i].presentes = cjto_cria(b->lotacao);
+        b[i].presentes = cjto_cria(nherois);
         b[i].espera = lista_cria();
     }
 
@@ -104,7 +104,7 @@ struct mundo * iniciarMundo(){
     mun->Nherois = N_HABILIDADES * 5;
     mun->herois = iniciaHerois(mun->Nherois);
     mun->Nbase = mun->Nherois / 5;
-    mun->base = iniciaBase(mun->Nbase);
+    mun->base = iniciaBase(mun->Nbase, mun->Nherois);
     mun->Nmissao = T_FIM_DO_MUNDO / 10;
     mun->missao = iniciaMissao(mun->Nmissao);
     mun->Nhabili = N_HABILIDADES;
@@ -146,11 +146,12 @@ void printHerois(struct mundo *mundo){
     printf("\n");
     for(int i = 0; i < mundo->Nherois; ++i){
 
-        printf("%d     ", mundo->herois[i].id);
-        printf("%d         ", mundo->herois[i].paci);
-        printf("%d          ",mundo->herois[i].vel);
-        printf("%d            ", mundo->herois[i].xp);
-        printf("%d      ", mundo->herois[i].idBase);
+        printf("%3d", mundo->herois[i].id);
+        printf("%10d", mundo->herois[i].paci);
+        printf("%10d",mundo->herois[i].vel);
+        printf("%10d", mundo->herois[i].xp);
+        printf("%10d", mundo->herois[i].idBase);
+        printf("        ");
         cjto_imprime(mundo->herois[i].habili);
         printf("\n");
 
@@ -163,11 +164,13 @@ void printBase(struct mundo *mundo){
 
     for (int i = 0; i < mundo->Nbase; ++i){
 
-        printf("%d    ", mundo->base[i].id);
-        printf("%d       ", mundo->base[i].lotacao);
-        printf("%d      ", mundo->base[i].local.x);
-        printf("%d      ", mundo->base[i].local.y);
+        printf("%2d", mundo->base[i].id);
+        printf("%10d", mundo->base[i].lotacao);
+        printf("%10d", mundo->base[i].local.x);
+        printf("%10d", mundo->base[i].local.y);
+        printf("      ");
         cjto_imprime(mundo->base[i].presentes);
+        printf("      ");
         lista_imprime(mundo->base[i].espera);
         printf("\n");
     }
@@ -179,10 +182,10 @@ void printMissao(struct mundo *mundo){
     
     for (int i = 0; i < mundo->Nmissao; ++i){
 
-        printf("%d      ", mundo->missao[i].id);
-        printf("%d      ", mundo->missao[i].perigo);
-        printf("%d      ", mundo->missao[i].local.x);
-        printf("%d      ", mundo->missao[i].local.y);
+        printf("%2d", mundo->missao[i].id);
+        printf("%3d", mundo->missao[i].perigo);
+        printf("%3d", mundo->missao[i].local.x);
+        printf("%3d", mundo->missao[i].local.y);
         cjto_imprime(mundo->missao[i].habili);
         printf("\n");
 
@@ -243,6 +246,8 @@ int main (){
                 break;
             }
         }
+
+        free(item);
 
         fprio_imprime(mundo->lista);
 

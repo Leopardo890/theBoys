@@ -50,6 +50,7 @@ void espera(struct mundo *mundo, struct evento0 *item){
 
     lista_imprime(mundo->base[item->b].espera);
 
+    printf("\n");
 
     struct evento2 *e;
     if (!(e = malloc(sizeof(struct evento2))))
@@ -77,31 +78,37 @@ void desiste(struct mundo *mundo, struct evento1 *item){
 
 void avisa(struct mundo *mundo, struct evento2 *item){
 
-    int presentes;
+    int presentes, tamFila;
     presentes = cjto_card(mundo->base[item->b].presentes);
-    int fila;
-    fila = lista_tamanho(mundo->base[item->b].espera);
+    tamFila = lista_tamanho(mundo->base[item->b].espera);
 
+    lista_imprime(mundo->base[item->b].espera);
+    printf("\n");
+    printf("lotacao=%d\n", mundo->base[item->b].lotacao);
 
-    while(presentes <= mundo->base[item->b].lotacao && fila > 0){
-
-        printf("\npresentes=%d\nfila=%d\n", presentes, fila);
+    while(presentes < mundo->base[item->b].lotacao && tamFila > 0){
 
         int h;
-        fila = lista_retira(mundo->base[item->b].espera, &h, 0);
+        tamFila = lista_retira(mundo->base[item->b].espera, &h, 0);
         presentes = cjto_insere(mundo->base[item->b].presentes, h);
-
-        cjto_imprime(mundo->base[item->b].presentes);
+        
+        printf("tamFila=%d\npresentes=%d\n", tamFila, presentes);
 
         struct evento0 *e;
         if (!(e = malloc(sizeof(struct evento0))))
             return;
-        
+            
         e->h = h;
         e->b = item->b;
 
         fprio_insere(mundo->lista, e, 5, mundo->relogio);
     }
+
+    cjto_imprime(mundo->base[item->b].presentes);
+    printf("\n");
+    lista_imprime(mundo->base[item->b].espera);
+    printf("\n");
+
 }
 
 void entra(struct mundo *mundo, struct evento0 *item){
