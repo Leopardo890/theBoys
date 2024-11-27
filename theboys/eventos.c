@@ -61,7 +61,7 @@ void espera(struct mundo *mundo, struct evento0 *item){
     fprio_insere(mundo->lista, e, 3, mundo->relogio);
 }
 
-void desiste(struct mundo *mundo, struct evento1 *item){
+void desiste(struct mundo *mundo, struct evento0 *item){
 
     unsigned int d;
     d = rand()%mundo->Nbase;
@@ -148,14 +148,19 @@ void viaja(struct mundo *mundo, struct evento0 *item){
     e->h = item->h;
     e->b = item->b;
 
-    printf("duracao=%d\n", duracao);
+    printf("duracao = %d/%d = %d\n", dist, mundo->herois[item->h].vel, duracao);
 
     fprio_insere(mundo->lista, e, 0, mundo->relogio + duracao);
 }
 
 void sai(struct mundo *mundo, struct evento0 *item){
 
+    cjto_imprime(mundo->base[item->b].presentes);
+    printf("\n");
+
     cjto_retira(mundo->base[item->b].presentes, item->h);
+
+    printf("saiu=%d\n", item->h);
     
     int d;
     d = rand()%mundo->Nbase;

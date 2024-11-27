@@ -12,8 +12,8 @@
 // seus #defines vão aqui
 
 #define T_INICIO 0
-#define T_FIM_DO_MUNDO 5
-#define N_TAMANHO_MUNDO 20
+#define T_FIM_DO_MUNDO 100
+#define N_TAMANHO_MUNDO 2000
 #define N_HABILIDADES 3
 
 // minimize o uso de variáveis globais
@@ -160,7 +160,7 @@ void printHerois(struct mundo *mundo){
 
 void printBase(struct mundo *mundo){
 
-    printf("base lotacao localX localY presentes espera\n");
+    printf("base   lotacao   localX    localY     presentes    espera\n");
 
     for (int i = 0; i < mundo->Nbase; ++i){
 
@@ -178,14 +178,15 @@ void printBase(struct mundo *mundo){
 
 void printMissao(struct mundo *mundo){
 
-    printf("missao perigo localX localY habilidades\n");
+    printf("missao  perigo   localX    localY    habilidades\n");
     
     for (int i = 0; i < mundo->Nmissao; ++i){
 
         printf("%2d", mundo->missao[i].id);
-        printf("%3d", mundo->missao[i].perigo);
-        printf("%3d", mundo->missao[i].local.x);
-        printf("%3d", mundo->missao[i].local.y);
+        printf("%10d", mundo->missao[i].perigo);
+        printf("%10d", mundo->missao[i].local.x);
+        printf("%10d", mundo->missao[i].local.y);
+        printf("      ");
         cjto_imprime(mundo->missao[i].habili);
         printf("\n");
 
@@ -215,6 +216,9 @@ int main (){
         item = fprio_retira(mundo->lista, &tipo, &tempo);
 
         printf("tipo=%d\n", tipo);
+
+        if (tempo > mundo->relogio)
+            mundo->relogio = tempo;
 
         switch(tipo){
             case 0:{
@@ -250,9 +254,6 @@ int main (){
         free(item);
 
         fprio_imprime(mundo->lista);
-
-        if (tempo > mundo->relogio)
-            mundo->relogio = tempo;
 
         printf("relogio=%d\n", mundo->relogio);
 
