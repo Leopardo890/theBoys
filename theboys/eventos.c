@@ -15,13 +15,15 @@
 \\5 -> entra
 \\6 -> sai
 \\7 -> missao
+\\8 -> morre
+\\9 -> fim
 */
 
 void chega(struct mundo *mundo, struct evento0 *item){
 
     mundo->herois[item->h].idBase = item->b;
 
-    int esp;
+    int esp = 0;
     int presentes;
     presentes = cjto_card(mundo->base[item->b].presentes);
     int fila;
@@ -39,19 +41,29 @@ void chega(struct mundo *mundo, struct evento0 *item){
     e->h = item->h;
     e->b = item->b;  
 
-    if (esp)
+    printf("%6d: CHEGA HEROI %2d BASE %d (%2d/%2d) ", mundo->relogio,
+            item->h, item->b, cjto_card(mundo->base[item->b].presentes),
+            mundo->base[item->b].lotacao);
+
+    if (esp){
+        
+        printf("ESPERA\n");
         fprio_insere(mundo->lista, e, 1, mundo->relogio);
-    else
+
+    } else {
+
+        printf("DESISTE\n");
         fprio_insere(mundo->lista, e, 2, mundo->relogio);
+    
+    }
 }
 
 void espera(struct mundo *mundo, struct evento0 *item){
 
+    printf("%6d: ESPERA HEROI %2d BASE %d (%2d)\n", mundo->relogio, item->h,
+            item->b, lista_tamanho(mundo->base[item->b].espera));
+
     lista_insere(mundo->base[item->b].espera, item->h, -1);
-
-    lista_imprime(mundo->base[item->b].espera);
-
-    printf("\n");
 
     struct evento2 *e;
     if (!(e = malloc(sizeof(struct evento2))))
@@ -74,6 +86,9 @@ void desiste(struct mundo *mundo, struct evento0 *item){
     e->h = item->h;
     e->b = d;
 
+    printf("%6d: DESISTE HEROI %2d BASE %d\n", mundo->relogio, item->h, 
+            item->b);
+
     fprio_insere(mundo->lista, e, 4, mundo->relogio);
 }
 
@@ -83,17 +98,19 @@ void avisa(struct mundo *mundo, struct evento2 *item){
     presentes = cjto_card(mundo->base[item->b].presentes);
     tamFila = lista_tamanho(mundo->base[item->b].espera);
 
+    if(tamFila > mundo->base[item->b].fimaMax)
+        mundo->base[item->b].fimaMax = tamFila;
+
+    printf("%6d: AVISA PORTEIRO BASE %d (%2d/%2d) FILA [ ", mundo->relogio,
+            item->b, presentes, mundo->base[item->b].lotacao);
     lista_imprime(mundo->base[item->b].espera);
-    printf("\n");
-    printf("lotacao=%d\n", mundo->base[item->b].lotacao);
+    printf(" ]\n");
 
     while(presentes < mundo->base[item->b].lotacao && tamFila > 0){
 
         int h;
         tamFila = lista_retira(mundo->base[item->b].espera, &h, 0);
         presentes = cjto_insere(mundo->base[item->b].presentes, h);
-        
-        printf("tamFila=%d\npresentes=%d\n", tamFila, presentes);
 
         struct evento0 *e;
         if (!(e = malloc(sizeof(struct evento0))))
@@ -102,13 +119,12 @@ void avisa(struct mundo *mundo, struct evento2 *item){
         e->h = h;
         e->b = item->b;
 
+        printf("%6d: AVISA PORTEIRO BASE %d ADMITE %2d\n", mundo->relogio,
+                item->b, h);
+
         fprio_insere(mundo->lista, e, 5, mundo->relogio);
     }
 
-    cjto_imprime(mundo->base[item->b].presentes);
-    printf("\n");
-    lista_imprime(mundo->base[item->b].espera);
-    printf("\n");
 
 }
 
@@ -124,6 +140,10 @@ void entra(struct mundo *mundo, struct evento0 *item){
     e->h = item->h;
     e->b = item->b;
 
+    printf("%6d: ENTRA HEROI %2d BASE %d (%2d/%2d) SAI %d\n", mundo->relogio,
+            item->h, item->b, cjto_card(mundo->base[item->b].presentes),
+            mundo->base[item->b].lotacao, mundo->relogio + tpb);
+
     fprio_insere(mundo->lista, e, 6, mundo->relogio + tpb);
 }
 
@@ -138,6 +158,7 @@ void viaja(struct mundo *mundo, struct evento0 *item){
     y2 = mundo->base[item->b].local.y;
 
     dist = (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1);
+    dist = sqrt(dist);
 
     int duracao;
     duracao = dist / mundo->herois[item->h].vel;
@@ -149,19 +170,16 @@ void viaja(struct mundo *mundo, struct evento0 *item){
     e->h = item->h;
     e->b = item->b;
 
-    printf("duracao = %d/%d = %d\n", dist, mundo->herois[item->h].vel, duracao);
+    printf("%6d: VIAJA  HEROI %2d BASE %d BASE %d DIST %d VEL %d CHEGA %d\n", 
+            mundo->relogio, item->h, mundo->herois[item->h].idBase, item->b,
+            dist, mundo->herois[item->h].vel, mundo->relogio + duracao);
 
     fprio_insere(mundo->lista, e, 0, mundo->relogio + duracao);
 }
 
 void sai(struct mundo *mundo, struct evento0 *item){
 
-    cjto_imprime(mundo->base[item->b].presentes);
-    printf("\n");
-
     cjto_retira(mundo->base[item->b].presentes, item->h);
-
-    printf("saiu=%d\n", item->h);
     
     int d;
     d = rand()%mundo->Nbase;
@@ -179,14 +197,18 @@ void sai(struct mundo *mundo, struct evento0 *item){
 
     v->b = item->b;
 
+    printf("%6d: SAI HEROI %2d BASE %d (%2d/%2d)\n", mundo->relogio,
+            item->h, item->b, cjto_card(mundo->base[item->b].presentes),
+            mundo->base[item->b].lotacao);
+
     fprio_insere(mundo->lista, e, 4, mundo->relogio);
     fprio_insere(mundo->lista, v, 3, mundo->relogio);
 }
 
-void morre(struct mundo *mundo, struct evento0 *item){
+void morre(struct mundo *mundo, struct evento4 *item){
 
     cjto_retira(mundo->base[item->b].presentes, item->h);
-    mundo->herois[item->h].id = -1;
+    mundo->herois[item->h].vivo = 0;
 
     struct evento2 *e;
     if (!(e = malloc(sizeof(struct evento2))))
@@ -194,73 +216,178 @@ void morre(struct mundo *mundo, struct evento0 *item){
 
     e->b = item->b;
 
+    printf("%6d: MORRE  HEROI %2d MISSAO %d\n", mundo->relogio, item->h,
+        item->m);
+
     fprio_insere(mundo->lista, e, 3, mundo->relogio);
 }
 
 void missao(struct mundo *mundo, struct evento3 *item){
 
-    int x1, x2, y1, y2, dist;
-    int basePerto;
-    int bmp = -1;
+    int x1, x2, y1, y2;
+    int dist, id;
+    struct fprio_t *ordem;  
+
+    ordem = fprio_cria();
+
+    x1 = mundo->missao[item->m].local.x;
+    y1 = mundo->missao[item->m].local.y;
 
     for(int i = 0; i < mundo->Nbase; ++i){
 
-        struct cjto_t *habTotal, *aux;
-        habTotal = cjto_cria(30);
+        x2 = mundo->base[i].local.x;
+        y2 = mundo->base[i].local.y;
 
-        printf("base=%d\n", i);
-        cjto_imprime(mundo->base[i].presentes);
+        dist = (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1);
+        dist = sqrt(dist);
 
-        printf("\n");
+        void*p;
+        if(!(p = malloc(sizeof(int))))
+            return;
 
-        for(int j = 0; j < mundo->Nherois; ++j){
+        fprio_insere(ordem, p, i, dist);        
+    }
 
-            if(cjto_pertence(mundo->base[i].presentes, j)){
+    void *lixo;
+    struct cjto_t *aux, *habTotal;
+    int continua = 1;
+    int i = 0;
 
-                printf("heroi=%d\n", j);
-                cjto_imprime(mundo->herois[j].habili);
-                printf("\n");
+    while(i < mundo->Nbase && continua){
+
+        lixo = fprio_retira(ordem, &id, &dist);
+        free(lixo);
+
+        habTotal = cjto_cria(mundo->Nhabili);
+
+        int j = 0;
+        while(j < mundo->Nherois){
+
+            if(cjto_pertence(mundo->base[id].presentes, j)){
 
                 aux = habTotal;
-                habTotal = cjto_uniao(habTotal, mundo->herois[j].habili);
+                habTotal = cjto_uniao(habTotal ,mundo->herois[j].habili);
                 aux = cjto_destroi(aux);
-
-                cjto_imprime(habTotal);
-                printf("\n");
-
-            }
-        }
-
-        printf("comparacao:\n");
-        cjto_imprime(habTotal);
-        printf("\n");
-        cjto_imprime(mundo->missao[item->m].habili);
-        printf("\n");
-
-        if(cjto_iguais(habTotal, mundo->missao[item->m].habili)){
-
-            x1 = mundo->base[i].local.x;
-            y1 = mundo->base[i].local.y;
-
-            x2 = mundo->missao[item->m].local.x;
-            y2 = mundo->missao[item->m].local.y;
-
-            dist = (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1);
-
-            if (i == 0 || dist < bmp){
-                bmp = dist;
-                basePerto = i;
-            }
-
-            printf("dist=%d\n", dist);
-
-        }
         
+            }
+
+            j++;
+        }
+
+        if(cjto_contem(habTotal, mundo->missao[item->m].habili))
+            continua = 0;
+
+        i++;
+
         habTotal = cjto_destroi(habTotal);
     }
 
-    printf("bmp=%d\n", bmp);
-    printf("basePerto=%d\n", basePerto);
+    int risco;
 
+    if(!(i == mundo->Nbase)){
+
+        mundo->missao[item->m].cumprida = 1;
+
+        for(int i = 0; i < mundo->Nherois; ++i){
+
+            if(cjto_pertence(mundo->base[id].presentes, i)){
+
+                risco = mundo->missao[item->m].perigo /
+                        (mundo->herois[i].paci + mundo->herois[i].xp + 1.0);
+
+                if(risco > rand()%31){
+
+                    struct evento4 *e;
+                    if(!(e = malloc(sizeof(struct evento4))))
+                        return;
+                    
+                    e->h = i;
+                    e->b = id;
+                    e->m = item->m;
+
+                    fprio_insere(mundo->lista, e, 8, mundo->relogio);
+                
+                } else {
+                    mundo->herois[i].xp++;
+                } 
+
+            } 
+
+        }
+    } else {
+
+        struct evento3 *e;
+        if(!(e = malloc(sizeof(struct evento3))))
+            return;
+        
+        e->m = item->m;
+
+        fprio_insere(mundo->lista, e, 7, mundo->relogio + (24*60));
+    }
+
+
+    ordem = fprio_destroi(ordem);
+
+}
+
+void fim(struct mundo *mundo){
+
+    printf("%6d: FIM\n", mundo->relogio);
+
+    int morto = 0; 
+    int vivo = 0;
+
+    for(int i = 0; i < mundo->Nherois; ++i){
+
+        printf("HEROI %2d ", i);
+
+        if(mundo->herois[i].vivo){
+            printf("VIVO ");
+            vivo++;
+        } else { 
+            printf("MORTO "); 
+            morto++;
+        }
+        printf("PAC %3d VEL %4d EXP %4d HABS [", mundo->herois[i].paci, 
+                mundo->herois[i].vel, mundo->herois[i].xp);
+        cjto_imprime(mundo->herois[i].habili);
+        printf(" ]\n");
+    }
+
+    for(int i = 0; i < mundo->Nbase; ++i){
+
+        printf("BASE %2d LOT %2d FILA MAX %2d MISSOES %d\n", i, 
+                mundo->base[i].lotacao, mundo->base[i].fimaMax,
+                mundo->base[i].missaos);
+    }
+
+    printf("EVENTOS TRATADOS: %d\n", mundo->eventos);
+
+    int cumprida = 0;
+    int min, max;
+
+    for(int i = 0; i < mundo->Nmissao; ++i){
+
+        if (mundo->missao[i].cumprida)
+            cumprida++;
+
+        if(i == 0 || min > mundo->missao[i].tent)
+            min = mundo->missao[i].tent;
+        
+        if(i == 0 || max < mundo->missao[i].tent)
+            max = mundo->missao[i].tent;
+    }
+
+    double divi;
     
+    divi = (double)cumprida/mundo->Nmissao;
+    printf("MISSOES CUMPRIDAS: %d/%d (%.1f%%)\n", cumprida, mundo->Nmissao,
+            divi*100);
+
+    divi = (min + max)/2.;
+    printf("TENTATIVAS/MISSAO: MIN %d, MAX %d, MEDIA %.1f\n", min, max,
+            divi);
+
+    divi = (double)morto/mundo->Nherois;
+    printf("TAXA MORTALIDADE: %.1f%%\n", divi*100);
 }

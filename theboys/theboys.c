@@ -33,6 +33,7 @@ struct herois * iniciaHerois(int nherois){
         h[i].idBase = 0;
         int tam = rand()%3 + 1;
         h[i].habili = cjto_aleat(tam, N_HABILIDADES);
+        h[i].vivo = 1;
     
     }
 
@@ -53,6 +54,8 @@ struct base * iniciaBase(int nbase, int nherois){
         b[i].lotacao = (rand()%8 + 3);
         b[i].presentes = cjto_cria(nherois);
         b[i].espera = lista_cria();
+        b[i].fimaMax = 0;
+        b[i].missaos = 0;
     }
 
     return b;
@@ -72,6 +75,8 @@ struct missao * iniciaMissao(int nmissao){
         int tam = rand()%5 + 6;
         m[i].habili = cjto_aleat(tam, N_HABILIDADES);
         m[i].perigo = rand()%101;
+        m[i].cumprida = 0;
+        m[i].tent = 0;
 
     }
 
@@ -111,6 +116,11 @@ struct fprio_t * fprio_inicia(struct mundo *mundo){
 
     }
 
+    void *p;
+    p = malloc(sizeof(int));
+
+    fprio_insere(mundo->lista, p , 9, T_FIM_DO_MUNDO);
+
     return mundo->lista;
 }
 
@@ -131,6 +141,7 @@ struct mundo * iniciarMundo(){
     mun->tamMundo.y = N_TAMANHO_MUNDO;
     mun->relogio = 0;
     mun->lista = fprio_cria();
+    mun->eventos = 0;
     mun->lista = fprio_inicia(mun);
 
     return mun;
@@ -159,60 +170,6 @@ struct mundo * destruirMundo(struct mundo *mundo){
     return NULL;
 }
 
-void printHerois(struct mundo *mundo){
-
-    printf("Heroi paciencia velocidade experiencia idBase habilidades");
-    printf("\n");
-    for(int i = 0; i < mundo->Nherois; ++i){
-
-        printf("%3d", mundo->herois[i].id);
-        printf("%10d", mundo->herois[i].paci);
-        printf("%10d",mundo->herois[i].vel);
-        printf("%10d", mundo->herois[i].xp);
-        printf("%10d", mundo->herois[i].idBase);
-        printf("        ");
-        cjto_imprime(mundo->herois[i].habili);
-        printf("\n");
-
-    }
-}
-
-void printBase(struct mundo *mundo){
-
-    printf("base   lotacao   localX    localY     presentes    espera\n");
-
-    for (int i = 0; i < mundo->Nbase; ++i){
-
-        printf("%2d", mundo->base[i].id);
-        printf("%10d", mundo->base[i].lotacao);
-        printf("%10d", mundo->base[i].local.x);
-        printf("%10d", mundo->base[i].local.y);
-        printf("      ");
-        cjto_imprime(mundo->base[i].presentes);
-        printf("      ");
-        lista_imprime(mundo->base[i].espera);
-        printf("\n");
-    }
-}
-
-void printMissao(struct mundo *mundo){
-
-    printf("missao  perigo   localX    localY    habilidades\n");
-    
-    for (int i = 0; i < mundo->Nmissao; ++i){
-
-        printf("%2d", mundo->missao[i].id);
-        printf("%10d", mundo->missao[i].perigo);
-        printf("%10d", mundo->missao[i].local.x);
-        printf("%10d", mundo->missao[i].local.y);
-        printf("      ");
-        cjto_imprime(mundo->missao[i].habili);
-        printf("\n");
-
-    }
-}
-
-
 // programa principal
 int main (){
 
@@ -227,14 +184,12 @@ int main (){
 
     printf("\n\n");
 
-    while (mundo->relogio <= T_FIM_DO_MUNDO){
+    while (mundo->relogio < T_FIM_DO_MUNDO){
 
         int tipo;
         int tempo;
         void *item;
         item = fprio_retira(mundo->lista, &tipo, &tempo);
-
-        printf("tipo=%d\n", tipo);
 
         if (tempo > mundo->relogio)
             mundo->relogio = tempo;
@@ -272,23 +227,21 @@ int main (){
                 missao(mundo, item);
                 break;
             }
+            case 8:{
+                morre(mundo, item);
+                break;;
+            }
+            case 9:{
+                fim(mundo);
+                break;
+            }
         }
 
+        mundo->eventos++;
+
         free(item);
-
-        fprio_imprime(mundo->lista);
-
-        printf("relogio=%d\n", mundo->relogio);
-
-        printf("\n\n\n");
       
     }
-
-    printHerois(mundo);
-    printf("\n\n\n\n");
-    printBase(mundo);
-    printf("\n\n\n\n");
-    printMissao(mundo);
 
     // destruir o mundo
 

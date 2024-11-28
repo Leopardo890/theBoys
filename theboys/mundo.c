@@ -10,6 +10,7 @@ struct herois{
     int vel;
     int xp;
     int idBase;
+    int vivo;
 
 };
 
@@ -27,6 +28,8 @@ struct base{
     struct cjto_t *presentes;
     struct lista_t *espera;
     struct cordenada local;
+    int missaos;
+    int fimaMax;
 
 };
 
@@ -36,6 +39,8 @@ struct missao{
     struct cjto_t *habili;
     int perigo;
     struct cordenada local;
+    int cumprida;
+    int tent;
 
 };
 
@@ -51,6 +56,7 @@ struct mundo{
     struct cordenada tamMundo;
     int relogio;
     struct fprio_t *lista;
+    int eventos;
 
 };
 
@@ -72,5 +78,12 @@ struct evento2{
 
 struct evento3{
     
+    int m;
+};
+
+struct evento4{
+    
+    int h;
+    int b;
     int m;
 };

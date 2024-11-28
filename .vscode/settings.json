@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "conjunto.h": "c",
+        "lista.h": "c"
+    }
+}
