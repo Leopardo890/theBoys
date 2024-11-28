@@ -12,7 +12,7 @@
 // seus #defines vão aqui
 
 #define T_INICIO 0
-#define T_FIM_DO_MUNDO 100
+#define T_FIM_DO_MUNDO 10000
 #define N_TAMANHO_MUNDO 2000
 #define N_HABILIDADES 3
 
@@ -80,16 +80,35 @@ struct missao * iniciaMissao(int nmissao){
 
 struct fprio_t * fprio_inicia(struct mundo *mundo){
 
+    int tempo;
+    
     for (int i = 0; i < mundo->Nherois; ++i){  
       
         struct evento0 *e;
         if (!(e = malloc(sizeof(struct evento0))))
             return NULL;
 
-          e->h = i;
-          e->b = rand()%mundo->Nbase;
-          fprio_insere(mundo->lista, e, 0, 0);
+        e->h = i;
+        e->b = rand()%mundo->Nbase;
+
+        tempo = rand()%4321;
+
+        fprio_insere(mundo->lista, e, 0, tempo);
     
+    }
+
+    for (int i = 0; i < mundo->Nmissao; ++i){
+
+        struct evento3 *e;
+        if(!(e = malloc(sizeof(struct evento3))))
+            return NULL;
+        
+        e->m = i;
+
+        tempo = rand()%(T_FIM_DO_MUNDO+1);
+
+        fprio_insere(mundo->lista, e, 7, tempo);
+
     }
 
     return mundo->lista;
@@ -247,6 +266,10 @@ int main (){
             }
             case 6:{
                 sai(mundo, item);
+                break;
+            }
+            case 7:{
+                missao(mundo, item);
                 break;
             }
         }

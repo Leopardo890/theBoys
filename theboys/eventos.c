@@ -14,6 +14,7 @@
 \\4 -> viaja
 \\5 -> entra
 \\6 -> sai
+\\7 -> missao
 */
 
 void chega(struct mundo *mundo, struct evento0 *item){
@@ -194,4 +195,72 @@ void morre(struct mundo *mundo, struct evento0 *item){
     e->b = item->b;
 
     fprio_insere(mundo->lista, e, 3, mundo->relogio);
+}
+
+void missao(struct mundo *mundo, struct evento3 *item){
+
+    int x1, x2, y1, y2, dist;
+    int basePerto;
+    int bmp = -1;
+
+    for(int i = 0; i < mundo->Nbase; ++i){
+
+        struct cjto_t *habTotal, *aux;
+        habTotal = cjto_cria(30);
+
+        printf("base=%d\n", i);
+        cjto_imprime(mundo->base[i].presentes);
+
+        printf("\n");
+
+        for(int j = 0; j < mundo->Nherois; ++j){
+
+            if(cjto_pertence(mundo->base[i].presentes, j)){
+
+                printf("heroi=%d\n", j);
+                cjto_imprime(mundo->herois[j].habili);
+                printf("\n");
+
+                aux = habTotal;
+                habTotal = cjto_uniao(habTotal, mundo->herois[j].habili);
+                aux = cjto_destroi(aux);
+
+                cjto_imprime(habTotal);
+                printf("\n");
+
+            }
+        }
+
+        printf("comparacao:\n");
+        cjto_imprime(habTotal);
+        printf("\n");
+        cjto_imprime(mundo->missao[item->m].habili);
+        printf("\n");
+
+        if(cjto_iguais(habTotal, mundo->missao[item->m].habili)){
+
+            x1 = mundo->base[i].local.x;
+            y1 = mundo->base[i].local.y;
+
+            x2 = mundo->missao[item->m].local.x;
+            y2 = mundo->missao[item->m].local.y;
+
+            dist = (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1);
+
+            if (i == 0 || dist < bmp){
+                bmp = dist;
+                basePerto = i;
+            }
+
+            printf("dist=%d\n", dist);
+
+        }
+        
+        habTotal = cjto_destroi(habTotal);
+    }
+
+    printf("bmp=%d\n", bmp);
+    printf("basePerto=%d\n", basePerto);
+
+    
 }

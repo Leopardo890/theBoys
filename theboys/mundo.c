@@ -69,3 +69,8 @@ struct evento2{
 
     int b;
 };
+
+struct evento3{
+    
+    int m;
+};
