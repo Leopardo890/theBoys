@@ -224,9 +224,17 @@ void morre(struct mundo *mundo, struct evento4 *item){
 
 void missao(struct mundo *mundo, struct evento3 *item){
 
+    mundo->missao[item->m].tent++;
+
+    printf("%6d: MISSAO %d TENT %d HAB REQ: [ ", mundo->relogio,
+            item->m, mundo->missao[item->m].tent);
+    cjto_imprime(mundo->missao[item->m].habili);
+    printf(" ]\n");
+
     int x1, x2, y1, y2;
     int dist, id;
     struct fprio_t *ordem;  
+    struct cjto_t *aux, *habTotal;
 
     ordem = fprio_cria();
 
@@ -241,52 +249,64 @@ void missao(struct mundo *mundo, struct evento3 *item){
         dist = (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1);
         dist = sqrt(dist);
 
-        void*p;
-        if(!(p = malloc(sizeof(int))))
-            return;
-
-        fprio_insere(ordem, p, i, dist);        
-    }
-
-    void *lixo;
-    struct cjto_t *aux, *habTotal;
-    int continua = 1;
-    int i = 0;
-
-    while(i < mundo->Nbase && continua){
-
-        lixo = fprio_retira(ordem, &id, &dist);
-        free(lixo);
+        printf("%6d: MISSAO %d BASE %d DIST %d HEROIS [ ", mundo->relogio,
+                item->m, i, dist);
+        cjto_imprime(mundo->base[i].presentes);
+        printf(" ]\n");        
 
         habTotal = cjto_cria(mundo->Nhabili);
 
         int j = 0;
         while(j < mundo->Nherois){
 
-            if(cjto_pertence(mundo->base[id].presentes, j)){
+            if(cjto_pertence(mundo->base[i].presentes, j)){
 
                 aux = habTotal;
                 habTotal = cjto_uniao(habTotal ,mundo->herois[j].habili);
                 aux = cjto_destroi(aux);
-        
+
+                printf("%6d: MISSAO %d HAB HEROI %2d: [ ", mundo->relogio,
+                        item->m, j);
+                cjto_imprime(mundo->herois[j].habili);
+                printf(" ]\n");
+
             }
 
             j++;
         }
 
-        if(cjto_contem(habTotal, mundo->missao[item->m].habili))
-            continua = 0;
+        printf("%6d: MISSAO %d UNIAO HAB BASE %d: [ ", mundo->relogio,
+                item->m, i);
+        cjto_imprime(habTotal);
+        printf(" ]\n");
 
-        i++;
+        if(cjto_contem(habTotal, mundo->missao[item->m].habili)){
+            struct cjto_t *guardaHabili;
+            guardaHabili = cjto_copia(habTotal);
+            fprio_insere(ordem, (void*)guardaHabili, i, dist);
+        }
 
         habTotal = cjto_destroi(habTotal);
+
     }
 
     int risco;
+    struct cjto_t *habiliUsadas;
 
-    if(!(i == mundo->Nbase)){
+    if(fprio_tamanho(ordem)){
 
         mundo->missao[item->m].cumprida = 1;
+
+        habiliUsadas = (struct cjto_t *)fprio_retira(ordem, &id, &dist);
+
+        mundo->base[id].missaos++;
+
+        printf("%6d: MISSAO %d CUMPRIDA BASE %d HABS: [ ", mundo->relogio,
+                item->m, id);
+        cjto_imprime(habiliUsadas);
+        printf(" ]\n");
+
+        habiliUsadas = cjto_destroi(habiliUsadas);
 
         for(int i = 0; i < mundo->Nherois; ++i){
 
@@ -316,6 +336,8 @@ void missao(struct mundo *mundo, struct evento3 *item){
         }
     } else {
 
+        printf("%6d: MISSAO %d IMPOSSIVEL\n", mundo->relogio, item->m);
+
         struct evento3 *e;
         if(!(e = malloc(sizeof(struct evento3))))
             return;
@@ -325,6 +347,11 @@ void missao(struct mundo *mundo, struct evento3 *item){
         fprio_insere(mundo->lista, e, 7, mundo->relogio + (24*60));
     }
 
+    int n = fprio_tamanho(ordem);
+    for(int i = 0; i < n; ++i){
+        habiliUsadas = fprio_retira(ordem, 0, 0);
+        habiliUsadas = cjto_destroi(habiliUsadas);
+    }
 
     ordem = fprio_destroi(ordem);
 
@@ -348,7 +375,7 @@ void fim(struct mundo *mundo){
             printf("MORTO "); 
             morto++;
         }
-        printf("PAC %3d VEL %4d EXP %4d HABS [", mundo->herois[i].paci, 
+        printf("PAC %3d VEL %4d EXP %4d HABS [ ", mundo->herois[i].paci, 
                 mundo->herois[i].vel, mundo->herois[i].xp);
         cjto_imprime(mundo->herois[i].habili);
         printf(" ]\n");

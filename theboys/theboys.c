@@ -12,19 +12,19 @@
 // seus #defines vão aqui
 
 #define T_INICIO 0
-#define T_FIM_DO_MUNDO 10000
-#define N_TAMANHO_MUNDO 2000
-#define N_HABILIDADES 3
+#define T_FIM_DO_MUNDO 52560
+#define N_TAMANHO_MUNDO 20000
+#define N_HABILIDADES 10
 
 // minimize o uso de variáveis globais
 
-struct herois * iniciaHerois(int nherois){
+struct herois * iniciaHerois(struct mundo *mundo){
 
     struct herois *h;
-    if (!(h = malloc(sizeof(struct herois) * nherois)))
+    if (!(h = malloc(sizeof(struct herois) * mundo->Nherois)))
         return NULL;
     
-    for(int i = 0; i < nherois; ++i){
+    for(int i = 0; i < mundo->Nherois; ++i){
       
         h[i].id = i;
         h[i].paci = rand()%101;
@@ -34,25 +34,36 @@ struct herois * iniciaHerois(int nherois){
         int tam = rand()%3 + 1;
         h[i].habili = cjto_aleat(tam, N_HABILIDADES);
         h[i].vivo = 1;
+
+        struct evento0 *e;
+        if (!(e = malloc(sizeof(struct evento0))))
+            return NULL;
+
+        e->h = i;
+        e->b = rand()%mundo->Nbase;
+
+        int tempo = rand()%4321;
+
+        fprio_insere(mundo->lista, e, 0, tempo);
     
     }
 
     return h;
 }
 
-struct base * iniciaBase(int nbase, int nherois){
+struct base * iniciaBase(struct mundo *mundo){
 
     struct base *b;
-    if (!(b = malloc(sizeof(struct base) * nbase)))
+    if (!(b = malloc(sizeof(struct base) * mundo->Nbase)))
         return NULL;
 
-    for(int i = 0; i < nbase; ++i){
+    for(int i = 0; i < mundo->Nbase; ++i){
 
         b[i].id = i;
         b[i].local.x = rand()%N_TAMANHO_MUNDO;
         b[i].local.y = rand()%N_TAMANHO_MUNDO;
         b[i].lotacao = (rand()%8 + 3);
-        b[i].presentes = cjto_cria(nherois);
+        b[i].presentes = cjto_cria(mundo->Nherois);
         b[i].espera = lista_cria();
         b[i].fimaMax = 0;
         b[i].missaos = 0;
@@ -61,13 +72,13 @@ struct base * iniciaBase(int nbase, int nherois){
     return b;
 }
 
-struct missao * iniciaMissao(int nmissao){
+struct missao * iniciaMissao(struct mundo *mundo){
 
     struct missao *m;
-    if (!(m = malloc(sizeof(struct missao) * nmissao)))
+    if (!(m = malloc(sizeof(struct missao) * mundo->Nmissao)))
        return NULL;
 
-    for (int i = 0; i < nmissao; ++i){
+    for (int i = 0; i < mundo->Nmissao; ++i){
 
         m[i].id = i;
         m[i].local.x = rand()%N_TAMANHO_MUNDO;
@@ -78,51 +89,20 @@ struct missao * iniciaMissao(int nmissao){
         m[i].cumprida = 0;
         m[i].tent = 0;
 
-    }
-
-    return m;
-}
-
-struct fprio_t * fprio_inicia(struct mundo *mundo){
-
-    int tempo;
-    
-    for (int i = 0; i < mundo->Nherois; ++i){  
-      
-        struct evento0 *e;
-        if (!(e = malloc(sizeof(struct evento0))))
-            return NULL;
-
-        e->h = i;
-        e->b = rand()%mundo->Nbase;
-
-        tempo = rand()%4321;
-
-        fprio_insere(mundo->lista, e, 0, tempo);
-    
-    }
-
-    for (int i = 0; i < mundo->Nmissao; ++i){
-
         struct evento3 *e;
         if(!(e = malloc(sizeof(struct evento3))))
             return NULL;
         
         e->m = i;
 
-        tempo = rand()%(T_FIM_DO_MUNDO+1);
+        int tempo = rand()%(T_FIM_DO_MUNDO+1);
 
         fprio_insere(mundo->lista, e, 7, tempo);
-
     }
 
-    void *p;
-    p = malloc(sizeof(int));
-
-    fprio_insere(mundo->lista, p , 9, T_FIM_DO_MUNDO);
-
-    return mundo->lista;
+    return m;
 }
+
 
 struct mundo * iniciarMundo(){
 
@@ -130,19 +110,24 @@ struct mundo * iniciarMundo(){
     if(!(mun = malloc(sizeof(struct mundo))))
         return NULL;
 
+    mun->lista = fprio_cria();
     mun->Nherois = N_HABILIDADES * 5;
-    mun->herois = iniciaHerois(mun->Nherois);
     mun->Nbase = mun->Nherois / 5;
-    mun->base = iniciaBase(mun->Nbase, mun->Nherois);
-    mun->Nmissao = T_FIM_DO_MUNDO / 10;
-    mun->missao = iniciaMissao(mun->Nmissao);
+    mun->herois = iniciaHerois(mun);
+    mun->base = iniciaBase(mun);
+    mun->Nmissao = T_FIM_DO_MUNDO / 100;
+    mun->missao = iniciaMissao(mun);
     mun->Nhabili = N_HABILIDADES;
     mun->tamMundo.x = N_TAMANHO_MUNDO;
     mun->tamMundo.y = N_TAMANHO_MUNDO;
     mun->relogio = 0;
-    mun->lista = fprio_cria();
     mun->eventos = 0;
-    mun->lista = fprio_inicia(mun);
+    
+    void *p;
+    if(!(p = malloc(sizeof(int))))
+        return NULL;
+
+    fprio_insere(mun->lista, p , 9, T_FIM_DO_MUNDO);
 
     return mun;
 }
@@ -182,13 +167,12 @@ int main (){
 
     // executar o laço de simulação
 
-    printf("\n\n");
+    int tipo;
+    int tempo;
+    void *item;
 
     while (mundo->relogio < T_FIM_DO_MUNDO){
 
-        int tipo;
-        int tempo;
-        void *item;
         item = fprio_retira(mundo->lista, &tipo, &tempo);
 
         if (tempo > mundo->relogio)
