@@ -112,6 +112,11 @@ void avisa(struct mundo *mundo, struct evento2 *item){
         tamFila = lista_retira(mundo->base[item->b].espera, &h, 0);
         presentes = cjto_insere(mundo->base[item->b].presentes, h);
 
+        struct cjto_t *aux;
+        aux = cjto_uniao(mundo->herois[h].habili, mundo->base[item->b].habili);
+        cjto_destroi(mundo->base[item->b].habili);
+        mundo->base[item->b].habili = aux;
+
         struct evento0 *e;
         if (!(e = malloc(sizeof(struct evento0))))
             return;
@@ -180,6 +185,22 @@ void viaja(struct mundo *mundo, struct evento0 *item){
 void sai(struct mundo *mundo, struct evento0 *item){
 
     cjto_retira(mundo->base[item->b].presentes, item->h);
+
+    struct cjto_t *aux;
+    aux = cjto_dif(mundo->base[item->b].habili, mundo->herois[item->h].habili);
+    cjto_destroi(mundo->base[item->b].habili);
+    mundo->base[item->b].habili = aux;
+
+    for(int i = 0; i < mundo->Nherois; ++i){
+
+        if(cjto_pertence(mundo->base[item->b].presentes, i)){
+
+            aux = cjto_uniao(mundo->herois[i].habili, 
+                                mundo->base[item->b].habili);
+            cjto_destroi(mundo->base[item->b].habili);
+            mundo->base[item->b].habili = aux;
+        }
+    }
     
     int d;
     d = rand()%mundo->Nbase;
@@ -210,6 +231,22 @@ void morre(struct mundo *mundo, struct evento4 *item){
     cjto_retira(mundo->base[item->b].presentes, item->h);
     mundo->herois[item->h].vivo = 0;
 
+    struct cjto_t *aux;
+    aux = cjto_dif(mundo->base[item->b].habili, mundo->herois[item->h].habili);
+    cjto_destroi(mundo->base[item->b].habili);
+    mundo->base[item->b].habili = aux;
+
+    for(int i = 0; i < mundo->Nherois; ++i){
+
+        if(cjto_pertence(mundo->base[item->b].presentes, i)){
+
+            aux = cjto_uniao(mundo->herois[i].habili, 
+                                mundo->base[item->b].habili);
+            cjto_destroi(mundo->base[item->b].habili);
+            mundo->base[item->b].habili = aux;
+        }
+    }
+
     struct evento2 *e;
     if (!(e = malloc(sizeof(struct evento2))))
         return;
@@ -232,14 +269,13 @@ void missao(struct mundo *mundo, struct evento3 *item){
     printf(" ]\n");
 
     int x1, x2, y1, y2;
-    int dist, id;
-    struct fprio_t *ordem;  
-    struct cjto_t *aux, *habTotal;
-
-    ordem = fprio_cria();
+    int dist;
 
     x1 = mundo->missao[item->m].local.x;
     y1 = mundo->missao[item->m].local.y;
+
+    int menorDist, id;
+    int tentativa = 0;
 
     for(int i = 0; i < mundo->Nbase; ++i){
 
@@ -249,71 +285,60 @@ void missao(struct mundo *mundo, struct evento3 *item){
         dist = (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1);
         dist = sqrt(dist);
 
+        /*
         printf("%6d: MISSAO %d BASE %d DIST %d HEROIS [ ", mundo->relogio,
                 item->m, i, dist);
         cjto_imprime(mundo->base[i].presentes);
-        printf(" ]\n");        
+        printf(" ]\n");
 
-        habTotal = cjto_cria(mundo->Nhabili);
-
-        int j = 0;
-        while(j < mundo->Nherois){
+        for (int j = 0; j < mundo->Nherois; ++j){
 
             if(cjto_pertence(mundo->base[i].presentes, j)){
-
-                aux = habTotal;
-                habTotal = cjto_uniao(habTotal ,mundo->herois[j].habili);
-                aux = cjto_destroi(aux);
-
+            
                 printf("%6d: MISSAO %d HAB HEROI %2d: [ ", mundo->relogio,
                         item->m, j);
                 cjto_imprime(mundo->herois[j].habili);
                 printf(" ]\n");
-
+            
             }
-
-            j++;
         }
 
         printf("%6d: MISSAO %d UNIAO HAB BASE %d: [ ", mundo->relogio,
                 item->m, i);
-        cjto_imprime(habTotal);
+        cjto_imprime(mundo->base[i].habili);
         printf(" ]\n");
+        */
 
-        if(cjto_contem(habTotal, mundo->missao[item->m].habili)){
-            struct cjto_t *guardaHabili;
-            guardaHabili = cjto_copia(habTotal);
-            fprio_insere(ordem, (void*)guardaHabili, i, dist);
+        if(cjto_contem(mundo->base[i].habili, mundo->missao[item->m].habili)){
+
+            if(tentativa == 0 || dist < menorDist){
+                menorDist = dist;
+                id = i;
+            }
+            tentativa++;
         }
-
-        habTotal = cjto_destroi(habTotal);
+        
 
     }
 
     int risco;
-    struct cjto_t *habiliUsadas;
 
-    if(fprio_tamanho(ordem)){
+    if(tentativa){
 
         mundo->missao[item->m].cumprida = 1;
-
-        habiliUsadas = (struct cjto_t *)fprio_retira(ordem, &id, &dist);
-
         mundo->base[id].missaos++;
 
         printf("%6d: MISSAO %d CUMPRIDA BASE %d HABS: [ ", mundo->relogio,
                 item->m, id);
-        cjto_imprime(habiliUsadas);
+        cjto_imprime(mundo->base[id].habili);
         printf(" ]\n");
-
-        habiliUsadas = cjto_destroi(habiliUsadas);
 
         for(int i = 0; i < mundo->Nherois; ++i){
 
             if(cjto_pertence(mundo->base[id].presentes, i)){
 
-                risco = mundo->missao[item->m].perigo /
-                        (mundo->herois[i].paci + mundo->herois[i].xp + 1.0);
+                risco = mundo->missao[item->m].perigo / (mundo->herois[i].paci
+                        + mundo->herois[i].xp + 1.0);
 
                 if(risco > rand()%31){
 
@@ -329,11 +354,10 @@ void missao(struct mundo *mundo, struct evento3 *item){
                 
                 } else {
                     mundo->herois[i].xp++;
-                } 
-
-            } 
-
+                }
+            }
         }
+
     } else {
 
         printf("%6d: MISSAO %d IMPOSSIVEL\n", mundo->relogio, item->m);
@@ -341,19 +365,11 @@ void missao(struct mundo *mundo, struct evento3 *item){
         struct evento3 *e;
         if(!(e = malloc(sizeof(struct evento3))))
             return;
-        
+
         e->m = item->m;
 
         fprio_insere(mundo->lista, e, 7, mundo->relogio + (24*60));
     }
-
-    int n = fprio_tamanho(ordem);
-    for(int i = 0; i < n; ++i){
-        habiliUsadas = fprio_retira(ordem, 0, 0);
-        habiliUsadas = cjto_destroi(habiliUsadas);
-    }
-
-    ordem = fprio_destroi(ordem);
 
 }
 

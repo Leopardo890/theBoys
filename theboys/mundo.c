@@ -28,6 +28,7 @@ struct base{
     struct cjto_t *presentes;
     struct lista_t *espera;
     struct cordenada local;
+    struct cjto_t *habili;
     int missaos;
     int fimaMax;
 

@@ -12,7 +12,7 @@
 // seus #defines vão aqui
 
 #define T_INICIO 0
-#define T_FIM_DO_MUNDO 52560
+#define T_FIM_DO_MUNDO 525600
 #define N_TAMANHO_MUNDO 20000
 #define N_HABILIDADES 10
 
@@ -42,7 +42,7 @@ struct herois * iniciaHerois(struct mundo *mundo){
         e->h = i;
         e->b = rand()%mundo->Nbase;
 
-        int tempo = rand()%4321;
+        int tempo = rand()%4320;
 
         fprio_insere(mundo->lista, e, 0, tempo);
     
@@ -65,6 +65,7 @@ struct base * iniciaBase(struct mundo *mundo){
         b[i].lotacao = (rand()%8 + 3);
         b[i].presentes = cjto_cria(mundo->Nherois);
         b[i].espera = lista_cria();
+        b[i].habili = cjto_cria(mundo->Nhabili);
         b[i].fimaMax = 0;
         b[i].missaos = 0;
     }
@@ -95,7 +96,7 @@ struct missao * iniciaMissao(struct mundo *mundo){
         
         e->m = i;
 
-        int tempo = rand()%(T_FIM_DO_MUNDO+1);
+        int tempo = rand()%(T_FIM_DO_MUNDO);
 
         fprio_insere(mundo->lista, e, 7, tempo);
     }
@@ -113,11 +114,11 @@ struct mundo * iniciarMundo(){
     mun->lista = fprio_cria();
     mun->Nherois = N_HABILIDADES * 5;
     mun->Nbase = mun->Nherois / 5;
+    mun->Nhabili = N_HABILIDADES;
+    mun->Nmissao = T_FIM_DO_MUNDO / 100;
     mun->herois = iniciaHerois(mun);
     mun->base = iniciaBase(mun);
-    mun->Nmissao = T_FIM_DO_MUNDO / 100;
     mun->missao = iniciaMissao(mun);
-    mun->Nhabili = N_HABILIDADES;
     mun->tamMundo.x = N_TAMANHO_MUNDO;
     mun->tamMundo.y = N_TAMANHO_MUNDO;
     mun->relogio = 0;
@@ -140,6 +141,7 @@ struct mundo * destruirMundo(struct mundo *mundo){
     for(int i = 0; i < mundo->Nbase; ++i){
         mundo->base[i].presentes = cjto_destroi(mundo->base[i].presentes);
         mundo->base[i].espera = lista_destroi(mundo->base[i].espera);
+        mundo->base[i].habili = cjto_destroi(mundo->base[i].habili);
     }
 
     for(int i = 0; i < mundo->Nmissao; ++i)

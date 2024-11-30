@@ -66,7 +66,7 @@ int fprio_insere (struct fprio_t *f, void *item, int tipo, int prio){
 	if (f->num == 0){
 		f->prim = novo;
 		novo->prox = NULL;
-		return f->num += 1;
+		return ++f->num;
 	}
 
 	struct fpnodo_t *aux;
@@ -84,7 +84,7 @@ int fprio_insere (struct fprio_t *f, void *item, int tipo, int prio){
 	if (f->prim->prio > novo->prio){
 		novo->prox = f->prim;
 		f->prim = novo;
-		return f->num += 1;
+		return ++f->num;
 	}
 
 	aux = f->prim;
@@ -105,7 +105,7 @@ int fprio_insere (struct fprio_t *f, void *item, int tipo, int prio){
 		novo->prox = NULL;
 	}
 
-	return f->num += 1;
+	return ++f->num;
 }
 
 // Retira o primeiro item da fila e o devolve; o tipo e a prioridade
