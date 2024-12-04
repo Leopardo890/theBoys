@@ -1,5 +1,5 @@
 // programa principal do projeto "The Boys - 2024/2"
-// Autor: xxxxx, GRR xxxxxx
+// Autor: Leonardo Prazeres Tosin, GRR 20245412
 
 // seus #includes vão aqui
 #include "mundo.h" 
@@ -217,8 +217,6 @@ int main (){
                 break;
             }
         }
-
-        mundo->eventos++;
 
         free(item);
       

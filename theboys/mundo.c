@@ -2,6 +2,11 @@
 
 void chega(struct mundo *mundo, struct evento0 *item){
 
+    if(!mundo->herois[item->h].vivo)
+        return;
+    mundo->eventos++;
+
+
     mundo->herois[item->h].idBase = item->b;
 
     int esp = 0;
@@ -41,6 +46,10 @@ void chega(struct mundo *mundo, struct evento0 *item){
 
 void espera(struct mundo *mundo, struct evento0 *item){
 
+    if(!mundo->herois[item->h].vivo)
+        return;
+    mundo->eventos++;
+
     printf("%6d: ESPERA HEROI %2d BASE %d (%2d)\n", mundo->relogio, item->h,
             item->b, lista_tamanho(mundo->base[item->b].espera));
 
@@ -56,6 +65,10 @@ void espera(struct mundo *mundo, struct evento0 *item){
 }
 
 void desiste(struct mundo *mundo, struct evento0 *item){
+
+    if(!mundo->herois[item->h].vivo)
+        return;
+    mundo->eventos++;
 
     unsigned int d;
     d = rand()%mundo->Nbase;
@@ -74,6 +87,8 @@ void desiste(struct mundo *mundo, struct evento0 *item){
 }
 
 void avisa(struct mundo *mundo, struct evento2 *item){
+
+    mundo->eventos++;
 
     int presentes, tamFila;
     presentes = cjto_card(mundo->base[item->b].presentes);
@@ -116,6 +131,10 @@ void avisa(struct mundo *mundo, struct evento2 *item){
 
 void entra(struct mundo *mundo, struct evento0 *item){
 
+    if(!mundo->herois[item->h].vivo)
+        return;
+    mundo->eventos++;
+
     int tpb;
     tpb = 15 + (mundo->herois[item->h].paci * (rand()%20 + 1));
 
@@ -134,6 +153,10 @@ void entra(struct mundo *mundo, struct evento0 *item){
 }
 
 void viaja(struct mundo *mundo, struct evento0 *item){
+
+    if(!mundo->herois[item->h].vivo)
+        return;
+    mundo->eventos++;
 
     int dist, x1, x2, y1, y2;
     
@@ -164,6 +187,10 @@ void viaja(struct mundo *mundo, struct evento0 *item){
 }
 
 void sai(struct mundo *mundo, struct evento0 *item){
+
+    if(!mundo->herois[item->h].vivo)
+        return;
+    mundo->eventos++;
 
     cjto_retira(mundo->base[item->b].presentes, item->h);
 
@@ -209,6 +236,8 @@ void sai(struct mundo *mundo, struct evento0 *item){
 
 void morre(struct mundo *mundo, struct evento4 *item){
 
+    mundo->eventos++;
+
     cjto_retira(mundo->base[item->b].presentes, item->h);
     mundo->herois[item->h].vivo = 0;
 
@@ -241,6 +270,8 @@ void morre(struct mundo *mundo, struct evento4 *item){
 }
 
 void missao(struct mundo *mundo, struct evento3 *item){
+
+    mundo->eventos++;
 
     mundo->missao[item->m].tent++;
 
@@ -355,6 +386,8 @@ void missao(struct mundo *mundo, struct evento3 *item){
 }
 
 void fim(struct mundo *mundo){
+    
+    mundo->eventos++;
 
     printf("%6d: FIM\n", mundo->relogio);
 
