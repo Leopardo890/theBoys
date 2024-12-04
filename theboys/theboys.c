@@ -2,12 +2,7 @@
 // Autor: xxxxx, GRR xxxxxx
 
 // seus #includes vão aqui
-
-#include <stdio.h>
-
-#include <stdlib.h>
-
-#include "eventos.c" 
+#include "mundo.h" 
 
 // seus #defines vão aqui
 
@@ -44,7 +39,7 @@ struct herois * iniciaHerois(struct mundo *mundo){
 
         int tempo = rand()%4320;
 
-        fprio_insere(mundo->lista, e, 0, tempo);
+        fprio_insere(mundo->lista, e, EV_CHEGA, tempo);
     
     }
 
@@ -98,7 +93,7 @@ struct missao * iniciaMissao(struct mundo *mundo){
 
         int tempo = rand()%(T_FIM_DO_MUNDO);
 
-        fprio_insere(mundo->lista, e, 7, tempo);
+        fprio_insere(mundo->lista, e, EV_MISSAO, tempo);
     }
 
     return m;
@@ -128,7 +123,7 @@ struct mundo * iniciarMundo(){
     if(!(p = malloc(sizeof(int))))
         return NULL;
 
-    fprio_insere(mun->lista, p , 9, T_FIM_DO_MUNDO);
+    fprio_insere(mun->lista, p , EV_FIM, T_FIM_DO_MUNDO);
 
     return mun;
 }
@@ -181,43 +176,43 @@ int main (){
             mundo->relogio = tempo;
 
         switch(tipo){
-            case 0:{
+            case EV_CHEGA:{
                 chega(mundo, item);
                 break;
             }
-            case 1:{
+            case EV_ESPERA:{
                 espera(mundo, item);
                 break;
             }
-            case 2:{
+            case EV_DESISTE:{
                 desiste(mundo, item);
                 break;
             }
-            case 3:{
+            case EV_AVISA:{
                 avisa(mundo, item);
                 break;
             }
-            case 4:{
+            case EV_VIAJA:{
                 viaja(mundo, item);
                 break;
             }
-            case 5:{
+            case EV_ENTRA:{
                 entra(mundo, item);
                 break;
             }
-            case 6:{
+            case EV_SAI:{
                 sai(mundo, item);
                 break;
             }
-            case 7:{
+            case EV_MISSAO:{
                 missao(mundo, item);
                 break;
             }
-            case 8:{
+            case EV_MORRE:{
                 morre(mundo, item);
                 break;;
             }
-            case 9:{
+            case EV_FIM:{
                 fim(mundo);
                 break;
             }
