@@ -2,8 +2,6 @@
 
 void chega(struct mundo *mundo, struct evento0 *item){
 
-    if(!mundo->herois[item->h].vivo)
-        return;
     mundo->eventos++;
 
 
@@ -46,8 +44,6 @@ void chega(struct mundo *mundo, struct evento0 *item){
 
 void espera(struct mundo *mundo, struct evento0 *item){
 
-    if(!mundo->herois[item->h].vivo)
-        return;
     mundo->eventos++;
 
     printf("%6d: ESPERA HEROI %2d BASE %d (%2d)\n", mundo->relogio, item->h,
@@ -66,8 +62,6 @@ void espera(struct mundo *mundo, struct evento0 *item){
 
 void desiste(struct mundo *mundo, struct evento0 *item){
 
-    if(!mundo->herois[item->h].vivo)
-        return;
     mundo->eventos++;
 
     unsigned int d;
@@ -131,8 +125,6 @@ void avisa(struct mundo *mundo, struct evento2 *item){
 
 void entra(struct mundo *mundo, struct evento0 *item){
 
-    if(!mundo->herois[item->h].vivo)
-        return;
     mundo->eventos++;
 
     int tpb;
@@ -154,8 +146,6 @@ void entra(struct mundo *mundo, struct evento0 *item){
 
 void viaja(struct mundo *mundo, struct evento0 *item){
 
-    if(!mundo->herois[item->h].vivo)
-        return;
     mundo->eventos++;
 
     int dist, x1, x2, y1, y2;
@@ -337,7 +327,7 @@ void missao(struct mundo *mundo, struct evento3 *item){
 
     if(tentativa){
 
-        mundo->missao[item->m].cumprida = 1;
+        mundo->cumpridas += 1;
         mundo->base[id].missaos++;
 
         printf("%6d: MISSAO %d CUMPRIDA BASE %d HABS: [ ", mundo->relogio,
@@ -392,16 +382,14 @@ void fim(struct mundo *mundo){
     printf("%6d: FIM\n", mundo->relogio);
 
     int morto = 0; 
-    int vivo = 0;
 
     for(int i = 0; i < mundo->Nherois; ++i){
 
         printf("HEROI %2d ", i);
 
-        if(mundo->herois[i].vivo){
+        if(mundo->herois[i].vivo)
             printf("VIVO ");
-            vivo++;
-        } else { 
+        else { 
             printf("MORTO "); 
             morto++;
         }
@@ -420,13 +408,9 @@ void fim(struct mundo *mundo){
 
     printf("EVENTOS TRATADOS: %d\n", mundo->eventos);
 
-    int cumprida = 0;
     int min, max;
 
     for(int i = 0; i < mundo->Nmissao; ++i){
-
-        if (mundo->missao[i].cumprida)
-            cumprida++;
 
         if(i == 0 || min > mundo->missao[i].tent)
             min = mundo->missao[i].tent;
@@ -437,8 +421,8 @@ void fim(struct mundo *mundo){
 
     double divi;
     
-    divi = (double)cumprida/mundo->Nmissao;
-    printf("MISSOES CUMPRIDAS: %d/%d (%.1f%%)\n", cumprida, mundo->Nmissao,
+    divi = (double)mundo->cumpridas/mundo->Nmissao;
+    printf("MISSOES CUMPRIDAS: %d/%d (%.1f%%)\n", mundo->cumpridas, mundo->Nmissao,
             divi*100);
 
     divi = (min + max)/2.;

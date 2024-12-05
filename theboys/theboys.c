@@ -82,7 +82,6 @@ struct missao * iniciaMissao(struct mundo *mundo){
         int tam = rand()%5 + 6;
         m[i].habili = cjto_aleat(tam, N_HABILIDADES);
         m[i].perigo = rand()%101;
-        m[i].cumprida = 0;
         m[i].tent = 0;
 
         struct evento3 *e;
@@ -118,7 +117,8 @@ struct mundo * iniciarMundo(){
     mun->tamMundo.y = N_TAMANHO_MUNDO;
     mun->relogio = 0;
     mun->eventos = 0;
-    
+    mun->cumpridas = 0;    
+
     void *p;
     if(!(p = malloc(sizeof(int))))
         return NULL;
